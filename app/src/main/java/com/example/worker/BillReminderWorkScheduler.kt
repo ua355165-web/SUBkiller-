@@ -17,7 +17,7 @@ object BillReminderWorkScheduler {
     fun schedulePeriodicBillCheck(context: Context) {
         try {
             val workManager = WorkManager.getInstance(context)
-            val periodicRequest = PeriodicWorkRequestBuilder<BillDueReminderWorker>(1, TimeUnit.DAYS)
+            val periodicRequest = PeriodicWorkRequestBuilder<BillDueReminderWorker>(24, TimeUnit.HOURS)
                 .build()
 
             workManager.enqueueUniquePeriodicWork(
@@ -25,7 +25,7 @@ object BillReminderWorkScheduler {
                 ExistingPeriodicWorkPolicy.KEEP,
                 periodicRequest
             )
-            Log.d(TAG, "Scheduled 24h periodic WorkManager task for bill due reminders.")
+            Log.d(TAG, "Scheduled 24h periodic WorkManager task for bill due reminders using ExistingPeriodicWorkPolicy.KEEP.")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to schedule periodic WorkManager job", e)
         }
@@ -33,6 +33,9 @@ object BillReminderWorkScheduler {
 
     fun triggerImmediateWorkManagerTest(context: Context) {
         try {
+            // Also ensure periodic work is registered
+            schedulePeriodicBillCheck(context)
+
             val workManager = WorkManager.getInstance(context)
             val oneTimeRequest = OneTimeWorkRequestBuilder<BillDueReminderWorker>()
                 .build()

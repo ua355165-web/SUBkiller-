@@ -75,18 +75,22 @@ fun SubscriptionItemCard(
     onClick: ((SubscriptionEntity) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val brandColor = when (subscription.provider.uppercase()) {
-        "NETFLIX" -> NetflixRed
-        "SPOTIFY" -> SpotifyGreen
-        "OPENAI" -> OpenAITeal
-        else -> CyanAccent
+    val brandColor = remember(subscription.provider) {
+        when (subscription.provider.uppercase()) {
+            "NETFLIX" -> NetflixRed
+            "SPOTIFY" -> SpotifyGreen
+            "OPENAI" -> OpenAITeal
+            else -> CyanAccent
+        }
     }
 
-    val displayAmount = CurrencyManager.formatConverted(
-        amount = subscription.amount,
-        sourceCurrency = if (subscription.currency.equals("PKR", ignoreCase = true)) CurrencyCode.PKR else CurrencyCode.USD,
-        displayCurrency = currentCurrency
-    )
+    val displayAmount = remember(subscription.amount, subscription.currency, currentCurrency) {
+        CurrencyManager.formatConverted(
+            amount = subscription.amount,
+            sourceCurrency = if (subscription.currency.equals("PKR", ignoreCase = true)) CurrencyCode.PKR else CurrencyCode.USD,
+            displayCurrency = currentCurrency
+        )
+    }
 
     val isNegotiating = subscription.status == "negotiating" || subscription.status == "requested"
     val isCancelled = subscription.status == "cancelled"

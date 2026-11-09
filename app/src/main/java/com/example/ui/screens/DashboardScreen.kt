@@ -146,8 +146,8 @@ fun DashboardScreen(
     val isRemindersActive = userProfile?.isAdvancedRemindersActive ?: false
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val utilitiesList = allSubscriptions.filter { it.isUtility }
-    val regularSubsList = allSubscriptions.filter { !it.isUtility }
+    val utilitiesList = remember(allSubscriptions) { allSubscriptions.filter { it.isUtility } }
+    val regularSubsList = remember(allSubscriptions) { allSubscriptions.filter { !it.isUtility } }
 
     val liveMonthlySpendUsd = remember(allSubscriptions) {
         allSubscriptions.filter { it.status == "active" || it.status == "negotiating" }.sumOf { item ->
@@ -156,17 +156,6 @@ fun DashboardScreen(
         }
     }
     val liveSavedUsd = userProfile?.totalSaved ?: 0.0
-
-    val infiniteTransition = rememberInfiniteTransition(label = "vip_ambient_motion")
-    val vipGlowPulse by infiniteTransition.animateFloat(
-        initialValue = 0.35f,
-        targetValue = 0.85f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2600, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "vip_glow_pulse"
-    )
 
     LaunchedEffect(uiNotice) {
         uiNotice?.let {
@@ -275,7 +264,7 @@ fun DashboardScreen(
                         contentPadding = PaddingValues(bottom = 90.dp)
                     ) {
                         // Top Header Bar with SubKiller branding & quick currency switch
-                        item {
+                        item(key = "home_top_header") {
                             TopHeaderBar(
                                 currentCurrency = currentCurrency,
                                 isPremium = isPremium,
@@ -288,7 +277,7 @@ fun DashboardScreen(
                         }
 
                         // Prominent Green Bar Charts/Graphs for Total Savings & Monthly Spend
-                        item {
+                        item(key = "home_bar_chart_card") {
                             Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                                 ProminentGreenBarChartCard(
                                     summary = summary,
@@ -300,7 +289,7 @@ fun DashboardScreen(
                         }
 
                         // Spend Summary Card (Total monthly burn, annualized, AI savings)
-                        item {
+                        item(key = "home_spend_summary_card") {
                             Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
                                 SpendSummaryCard(
                                     summary = summary,
@@ -311,123 +300,19 @@ fun DashboardScreen(
                         }
 
                         // Quick Action Bar (+ Add Utility, + Add Sub, Reminders, Logs)
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(FinanceCard)
-                                        .border(1.dp, LescoOrange.copy(alpha = 0.25f + vipGlowPulse * 0.40f), RoundedCornerShape(12.dp))
-                                        .clickable {
-                                            viewModel.openDialog(ActiveDialog.EditSubscription(isUtilityDefault = true))
-                                        }
-                                        .padding(vertical = 10.dp, horizontal = 6.dp)
-                                        .testTag("quick_add_utility_button"),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            imageVector = Icons.Default.Bolt,
-                                            contentDescription = null,
-                                            tint = LescoOrange,
-                                            modifier = Modifier.size(15.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = "+ Utility",
-                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                            color = TextPrimary
-                                        )
-                                    }
-                                }
-
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(FinanceCard)
-                                        .border(1.dp, CyanAccent.copy(alpha = 0.25f + vipGlowPulse * 0.40f), RoundedCornerShape(12.dp))
-                                        .clickable {
-                                            viewModel.openDialog(ActiveDialog.EditSubscription(isUtilityDefault = false))
-                                        }
-                                        .padding(vertical = 10.dp, horizontal = 6.dp)
-                                        .testTag("quick_add_sub_button"),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            imageVector = Icons.Default.CreditCard,
-                                            contentDescription = null,
-                                            tint = CyanAccent,
-                                            modifier = Modifier.size(15.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = "+ Sub",
-                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                            color = TextPrimary
-                                        )
-                                    }
-                                }
-
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1.1f)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(FinanceCard)
-                                        .border(1.dp, if (isRemindersActive) EmeraldGlow.copy(alpha = 0.45f + vipGlowPulse * 0.50f) else CyanAccent.copy(alpha = 0.25f + vipGlowPulse * 0.40f), RoundedCornerShape(12.dp))
-                                        .clickable {
-                                            viewModel.openDialog(ActiveDialog.AdvancedReminders)
-                                        }
-                                        .padding(vertical = 10.dp, horizontal = 6.dp)
-                                        .testTag("quick_reminders_button"),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            imageVector = Icons.Default.NotificationsActive,
-                                            contentDescription = "Alerts",
-                                            tint = if (isRemindersActive) EmeraldGlow else CyanAccent,
-                                            modifier = Modifier.size(15.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = "Reminders",
-                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                            color = if (isRemindersActive) EmeraldGlow else TextPrimary
-                                        )
-                                    }
-                                }
-
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(FinanceCard)
-                                        .border(1.dp, FinanceBorder, RoundedCornerShape(12.dp))
-                                        .clickable { showEventLogsDialog = true }
-                                        .padding(horizontal = 10.dp, vertical = 10.dp)
-                                        .testTag("audit_logs_shortcut_button"),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.History,
-                                        contentDescription = "History",
-                                        tint = EmeraldGlow,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            }
+                        item(key = "home_quick_action_bar") {
+                            DashboardQuickActionBar(
+                                isRemindersActive = isRemindersActive,
+                                onAddUtility = { viewModel.openDialog(ActiveDialog.EditSubscription(isUtilityDefault = true)) },
+                                onAddSub = { viewModel.openDialog(ActiveDialog.EditSubscription(isUtilityDefault = false)) },
+                                onOpenReminders = { viewModel.openDialog(ActiveDialog.AdvancedReminders) },
+                                onOpenLogs = { showEventLogsDialog = true }
+                            )
                         }
 
                         if (allSubscriptions.isEmpty()) {
                             // Empty Database State Card
-                            item {
+                            item(key = "home_empty_state_prompt") {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -527,7 +412,7 @@ fun DashboardScreen(
                             }
                         } else {
                             // Utility Bills Section (LESCO & K-Electric) Header
-                            item {
+                            item(key = "home_utilities_header") {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -562,7 +447,7 @@ fun DashboardScreen(
                             }
 
                             if (utilitiesList.isEmpty()) {
-                                item {
+                                item(key = "home_utilities_empty") {
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -582,7 +467,11 @@ fun DashboardScreen(
                                     }
                                 }
                             } else {
-                                items(utilitiesList, key = { it.id }) { bill ->
+                                items(
+                                    items = utilitiesList,
+                                    key = { it.id },
+                                    contentType = { "utility_bill" }
+                                ) { bill ->
                                     Box(
                                         modifier = Modifier
                                             .animateItem()
@@ -602,7 +491,7 @@ fun DashboardScreen(
                             }
 
                             // Subscriptions Section Header
-                            item {
+                            item(key = "home_subscriptions_header") {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -637,7 +526,7 @@ fun DashboardScreen(
                             }
 
                             if (regularSubsList.isEmpty()) {
-                                item {
+                                item(key = "home_subscriptions_empty") {
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -657,7 +546,11 @@ fun DashboardScreen(
                                     }
                                 }
                             } else {
-                                items(regularSubsList, key = { it.id }) { sub ->
+                                items(
+                                    items = regularSubsList,
+                                    key = { it.id },
+                                    contentType = { "subscription_item" }
+                                ) { sub ->
                                     Box(
                                         modifier = Modifier
                                             .animateItem()
@@ -678,7 +571,7 @@ fun DashboardScreen(
 
                         // Standard Banner Ad for basic free 1-day reminders (Zero ads if Advanced Reminders subscribed)
                         if (!isRemindersActive) {
-                            item {
+                            item(key = "home_banner_ad") {
                                 StandardBannerAdCard(
                                     onUpgradeClicked = { viewModel.openDialog(ActiveDialog.AdvancedReminders) },
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
@@ -696,7 +589,7 @@ fun DashboardScreen(
                             .testTag("subscriptions_screen_content"),
                         contentPadding = PaddingValues(bottom = 90.dp)
                     ) {
-                        item {
+                        item(key = "subs_top_header") {
                             TopHeaderBar(
                                 currentCurrency = currentCurrency,
                                 isPremium = isPremium,
@@ -707,7 +600,7 @@ fun DashboardScreen(
                             )
                         }
 
-                        item {
+                        item(key = "subs_search_bar") {
                             SubscriptionSearchBar(
                                 searchQuery = searchQuery,
                                 onSearchQueryChanged = { viewModel.setSearchQuery(it) },
@@ -719,7 +612,7 @@ fun DashboardScreen(
                             )
                         }
 
-                        item {
+                        item(key = "subs_filter_chips") {
                             FilterChipRow(
                                 selectedFilter = selectedFilter,
                                 onSelectFilter = { viewModel.setFilter(it) }
@@ -727,7 +620,7 @@ fun DashboardScreen(
                         }
 
                         if (filteredSubscriptions.isEmpty()) {
-                            item {
+                            item(key = "subs_empty_state") {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -783,7 +676,11 @@ fun DashboardScreen(
                             }
                         }
 
-                        items(filteredSubscriptions, key = { it.id }) { item ->
+                        items(
+                            items = filteredSubscriptions,
+                            key = { it.id },
+                            contentType = { if (it.isUtility) "utility_bill" else "subscription_item" }
+                        ) { item ->
                             Box(
                                 modifier = Modifier
                                     .animateItem()
@@ -813,7 +710,7 @@ fun DashboardScreen(
                         }
 
                         if (!isRemindersActive) {
-                            item {
+                            item(key = "subs_banner_ad") {
                                 StandardBannerAdCard(
                                     onUpgradeClicked = { viewModel.openDialog(ActiveDialog.AdvancedReminders) },
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
@@ -1071,5 +968,137 @@ fun DashboardScreen(
             logs = eventLogs,
             onDismiss = { showEventLogsDialog = false }
         )
+    }
+}
+
+@Composable
+private fun DashboardQuickActionBar(
+    isRemindersActive: Boolean,
+    onAddUtility: () -> Unit,
+    onAddSub: () -> Unit,
+    onOpenReminders: () -> Unit,
+    onOpenLogs: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "vip_ambient_motion")
+    val vipGlowPulse by infiniteTransition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 0.85f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2600, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "vip_glow_pulse"
+    )
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(FinanceCard)
+                .border(1.dp, LescoOrange.copy(alpha = 0.25f + vipGlowPulse * 0.40f), RoundedCornerShape(12.dp))
+                .clickable { onAddUtility() }
+                .padding(vertical = 10.dp, horizontal = 6.dp)
+                .testTag("quick_add_utility_button"),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Bolt,
+                    contentDescription = null,
+                    tint = LescoOrange,
+                    modifier = Modifier.size(15.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "+ Utility",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(FinanceCard)
+                .border(1.dp, CyanAccent.copy(alpha = 0.25f + vipGlowPulse * 0.40f), RoundedCornerShape(12.dp))
+                .clickable { onAddSub() }
+                .padding(vertical = 10.dp, horizontal = 6.dp)
+                .testTag("quick_add_sub_button"),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.CreditCard,
+                    contentDescription = null,
+                    tint = CyanAccent,
+                    modifier = Modifier.size(15.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "+ Sub",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .weight(1.1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(FinanceCard)
+                .border(
+                    1.dp,
+                    if (isRemindersActive) EmeraldGlow.copy(alpha = 0.45f + vipGlowPulse * 0.50f)
+                    else CyanAccent.copy(alpha = 0.25f + vipGlowPulse * 0.40f),
+                    RoundedCornerShape(12.dp)
+                )
+                .clickable { onOpenReminders() }
+                .padding(vertical = 10.dp, horizontal = 6.dp)
+                .testTag("quick_reminders_button"),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.NotificationsActive,
+                    contentDescription = "Alerts",
+                    tint = if (isRemindersActive) EmeraldGlow else CyanAccent,
+                    modifier = Modifier.size(15.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "Reminders",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = if (isRemindersActive) EmeraldGlow else TextPrimary
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(FinanceCard)
+                .border(1.dp, FinanceBorder, RoundedCornerShape(12.dp))
+                .clickable { onOpenLogs() }
+                .padding(horizontal = 10.dp, vertical = 10.dp)
+                .testTag("audit_logs_shortcut_button"),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.History,
+                contentDescription = "History",
+                tint = EmeraldGlow,
+                modifier = Modifier.size(16.dp)
+            )
+        }
     }
 }

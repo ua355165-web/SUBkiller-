@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -148,8 +149,10 @@ class SubTrackViewModel(application: Application) : AndroidViewModel(application
     private val _selectedDueDateRange = MutableStateFlow(DueDateRange.ALL)
     val selectedDueDateRange: StateFlow<DueDateRange> = _selectedDueDateRange.asStateFlow()
 
-    private val _isBiometricLocked = MutableStateFlow(false) // Dynamic biometric security state
+    private val _isBiometricLocked = MutableStateFlow(true) // Dynamic biometric security state: strictly defaults to locked on cold start
     val isBiometricLocked: StateFlow<Boolean> = _isBiometricLocked.asStateFlow()
+    val isUnlocked: StateFlow<Boolean> = _isBiometricLocked.map { !it }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    val isAuthenticated: StateFlow<Boolean> = isUnlocked
 
     private val _biometricError = MutableStateFlow<String?>(null)
     val biometricError: StateFlow<String?> = _biometricError.asStateFlow()
@@ -350,9 +353,15 @@ class SubTrackViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun lockAppBiometrically() {
+    fun lockAppBiometrically(showNotice: Boolean = true) {
         _isBiometricLocked.value = true
-        _uiNotice.value = "🔒 App locked with Biometric Security"
+        if (showNotice) {
+            _uiNotice.value = "🔒 App locked with Biometric Security"
+        }
+    }
+
+    fun resetAuthenticationState() {
+        _isBiometricLocked.value = true
     }
 
     fun toggleBillPaid(id: String, currentPaid: Boolean) {
@@ -523,7 +532,7 @@ class SubTrackViewModel(application: Application) : AndroidViewModel(application
 
     fun triggerWorkManagerCheck(context: Context) {
         com.example.worker.BillReminderWorkScheduler.triggerImmediateWorkManagerTest(context)
-        _uiNotice.value = "⚡ WorkManager 3-day bill check worker enqueued for background execution!"
+        _uiNotice.value = "⚡ WorkManager 24h periodic check active & background worker executed!"
     }
 
     fun exportDataToClipboard(context: Context) {

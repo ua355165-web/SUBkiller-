@@ -78,19 +78,23 @@ fun UtilityBillCard(
     onClick: ((SubscriptionEntity) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val brandColor = when (bill.provider.uppercase()) {
-        "LESCO" -> LescoOrange
-        "K_ELECTRIC" -> KElectricGreen
-        "PTCL" -> PtclCyan
-        "SNGPL" -> AmberPending
-        else -> CyanAccent
+    val brandColor = remember(bill.provider) {
+        when (bill.provider.uppercase()) {
+            "LESCO" -> LescoOrange
+            "K_ELECTRIC" -> KElectricGreen
+            "PTCL" -> PtclCyan
+            "SNGPL" -> AmberPending
+            else -> CyanAccent
+        }
     }
 
-    val displayAmount = CurrencyManager.formatConverted(
-        amount = bill.amount,
-        sourceCurrency = if (bill.currency.equals("PKR", ignoreCase = true)) CurrencyCode.PKR else CurrencyCode.USD,
-        displayCurrency = currentCurrency
-    )
+    val displayAmount = remember(bill.amount, bill.currency, currentCurrency) {
+        CurrencyManager.formatConverted(
+            amount = bill.amount,
+            sourceCurrency = if (bill.currency.equals("PKR", ignoreCase = true)) CurrencyCode.PKR else CurrencyCode.USD,
+            displayCurrency = currentCurrency
+        )
+    }
 
     var showContextMenu by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current

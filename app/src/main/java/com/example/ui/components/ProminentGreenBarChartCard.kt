@@ -103,19 +103,23 @@ fun ProminentGreenBarChartCard(
         }
     }
 
-    val maxRaw = when (selectedMetric) {
-        ChartMetricType.MONTHLY_SPEND -> monthlyData.maxOf { it.spendAmountUsd }
-        ChartMetricType.TOTAL_SAVINGS -> monthlyData.maxOf { it.savingsAmountUsd }
+    val maxRaw = remember(selectedMetric, monthlyData) {
+        when (selectedMetric) {
+            ChartMetricType.MONTHLY_SPEND -> monthlyData.maxOf { it.spendAmountUsd }
+            ChartMetricType.TOTAL_SAVINGS -> monthlyData.maxOf { it.savingsAmountUsd }
+        }
     }
-    val maxAmount = if (maxRaw > 0.0) maxRaw * 1.2 else 1.0
+    val maxAmount = remember(maxRaw) { if (maxRaw > 0.0) maxRaw * 1.2 else 1.0 }
 
     val selectedBar = monthlyData[selectedBarIndex]
     val selectedValueUsd = if (selectedMetric == ChartMetricType.MONTHLY_SPEND) selectedBar.spendAmountUsd else selectedBar.savingsAmountUsd
-    val displaySelectedValue = CurrencyManager.formatConverted(
-        amount = selectedValueUsd,
-        sourceCurrency = CurrencyCode.USD,
-        displayCurrency = currentCurrency
-    )
+    val displaySelectedValue = remember(selectedValueUsd, currentCurrency) {
+        CurrencyManager.formatConverted(
+            amount = selectedValueUsd,
+            sourceCurrency = CurrencyCode.USD,
+            displayCurrency = currentCurrency
+        )
+    }
 
     Box(
         modifier = modifier

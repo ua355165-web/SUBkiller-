@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.ui.screens.DashboardScreen
 import com.example.ui.theme.FinanceObsidian
 import com.example.ui.theme.MyApplicationTheme
@@ -21,6 +24,9 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Strictly enforce locked / unauthenticated state on cold start
+        viewModel.resetAuthenticationState()
+
         // Configure App Check with launch intent before any UI or Firebase operations
         com.example.security.configureAppCheck(this, intent)
 
@@ -29,6 +35,15 @@ class MainActivity : FragmentActivity() {
         } catch (e: Throwable) {
             e.printStackTrace()
         }
+
+        // Observe process lifecycle to automatically lock app whenever it goes into the background
+        ProcessLifecycleOwner.get().lifecycle.addObserver(
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_STOP) {
+                    viewModel.lockAppBiometrically(showNotice = false)
+                }
+            }
+        )
 
         setContent {
             MyApplicationTheme {
