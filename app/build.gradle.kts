@@ -31,7 +31,7 @@ android {
             )
         }
         debug {
-            // سائننگ کی وہ شرط جو گٹ ہب پر ایرر دے رہی تھی، اسے یہاں سے ہٹا دیا گیا ہے
+            // Debug build configuration
         }
     }
 
