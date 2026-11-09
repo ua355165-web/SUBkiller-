@@ -47,6 +47,8 @@ import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 
+import androidx.compose.material.icons.filled.Mic
+
 @Composable
 fun TopHeaderBar(
     currentCurrency: CurrencyCode,
@@ -54,6 +56,7 @@ fun TopHeaderBar(
     onToggleCurrency: () -> Unit,
     onOpenSmartScan: () -> Unit,
     onOpenSocialShare: () -> Unit,
+    onOpenAudioTranscribe: () -> Unit = {},
     onLockBiometrically: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -190,6 +193,24 @@ fun TopHeaderBar(
                         )
                     }
                 }
+            }
+
+            // Audio Transcribe Mic Button
+            IconButton(
+                onClick = onOpenAudioTranscribe,
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(CyanAccent.copy(alpha = 0.15f))
+                    .border(1.dp, CyanAccent.copy(alpha = 0.5f), CircleShape)
+                    .testTag("audio_transcribe_top_button")
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Mic,
+                    contentDescription = "Audio Transcribe",
+                    tint = CyanAccent,
+                    modifier = Modifier.size(17.dp)
+                )
             }
 
             // Biometric Quick Lock Button

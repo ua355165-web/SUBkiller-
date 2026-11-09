@@ -282,6 +282,7 @@ fun DashboardScreen(
                                 onToggleCurrency = { viewModel.toggleCurrency() },
                                 onOpenSmartScan = { viewModel.openDialog(ActiveDialog.SmartScan) },
                                 onOpenSocialShare = { viewModel.openDialog(ActiveDialog.SocialShare) },
+                                onOpenAudioTranscribe = { viewModel.openDialog(ActiveDialog.AudioTranscribe) },
                                 onLockBiometrically = { viewModel.lockAppBiometrically() }
                             )
                         }
@@ -869,6 +870,15 @@ fun DashboardScreen(
 
     // Modal Overlays
     when (val dialog = activeDialog) {
+        is ActiveDialog.AudioTranscribe -> {
+            com.example.ui.components.AudioTranscribeDialog(
+                onDismiss = { viewModel.closeDialog() },
+                onTranscriptionCompleted = { text ->
+                    viewModel.setSearchQuery(text)
+                }
+            )
+        }
+
         is ActiveDialog.AiCancellationModeSelect -> {
             AiCancellationModeSelectDialog(
                 subscription = dialog.subscription,

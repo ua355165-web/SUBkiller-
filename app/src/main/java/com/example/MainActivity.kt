@@ -21,8 +21,14 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Schedule WorkManager 3-day due date background worker
-        BillReminderWorkScheduler.schedulePeriodicBillCheck(this)
+        // Configure App Check with launch intent before any UI or Firebase operations
+        com.example.security.configureAppCheck(this, intent)
+
+        try {
+            BillReminderWorkScheduler.schedulePeriodicBillCheck(this)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
 
         setContent {
             MyApplicationTheme {

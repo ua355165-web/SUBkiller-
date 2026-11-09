@@ -95,6 +95,7 @@ sealed class ActiveDialog {
     data object PremiumUpgrade : ActiveDialog()
     data object SocialShare : ActiveDialog()
     data class CancellationDetails(val request: CancellationRequestEntity) : ActiveDialog()
+    data object AudioTranscribe : ActiveDialog()
 }
 
 data class FinancialSummary(
@@ -247,11 +248,6 @@ class SubTrackViewModel(application: Application) : AndroidViewModel(application
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), FinancialSummary())
 
     init {
-        // Guarantee clean slate: Purge any old demo templates so only real user data appears
-        viewModelScope.launch {
-            repository.clearSampleData()
-        }
-
         // Observe profile to sync saved currency
         viewModelScope.launch {
             repository.userProfile.collect { profile ->

@@ -1,0 +1,88 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidSubscription(data) {
+      return data.keys().hasAll(['userId', 'name', 'category', 'provider', 'isUtility', 'amount', 'currency', 'billingCycle', 'nextDueDate', 'supportEmail', 'status', 'isPaidThisMonth'])
+        && data.userId is string
+        && data.name is string
+        && data.category is string
+        && data.provider is string
+        && data.isUtility is bool
+        && (data.amount is int || data.amount is float)
+        && data.currency is string
+        && data.billingCycle is string
+        && data.nextDueDate is string
+        && data.supportEmail is string
+        && data.status is string
+        && data.isPaidThisMonth is bool;
+    }
+
+    function isValidCancellation(data) {
+      return data.keys().hasAll(['userId', 'subscriptionId', 'subscriptionName', 'recipientEmail', 'emailSubject', 'emailBody', 'status', 'requestType'])
+        && data.userId is string
+        && data.subscriptionId is string
+        && data.subscriptionName is string
+        && data.recipientEmail is string
+        && data.emailSubject is string
+        && data.emailBody is string
+        && data.status is string
+        && data.requestType is string;
+    }
+
+    function isValidEventLog(data) {
+      return data.keys().hasAll(['userId', 'actionType', 'title', 'description'])
+        && data.userId is string
+        && data.actionType is string
+        && data.title is string
+        && data.description is string;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['userId', 'email', 'name', 'totalSaved', 'preferredCurrency', 'isPremium', 'isAdvancedRemindersActive', 'securityPin'])
+        && data.userId is string
+        && data.email is string
+        && data.name is string
+        && (data.totalSaved is int || data.totalSaved is float)
+        && data.preferredCurrency is string
+        && data.isPremium is bool
+        && data.isAdvancedRemindersActive is bool
+        && data.securityPin is string;
+    }
+
+    match /subscriptions/{subId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid && isValidSubscription(request.resource.data);
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid && isValidSubscription(request.resource.data);
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /cancellations/{cancId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid && isValidCancellation(request.resource.data);
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid && isValidCancellation(request.resource.data);
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /event_logs/{logId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid && isValidEventLog(request.resource.data);
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /user_profiles/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && request.resource.data.userId == request.auth.uid && isValidUserProfile(request.resource.data);
+      allow delete: if isOwner(userId);
+    }
+  }
+}

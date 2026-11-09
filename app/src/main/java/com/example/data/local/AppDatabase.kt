@@ -41,138 +41,130 @@ abstract class AppDatabase : RoomDatabase() {
                     "subtrack_finance.db"
                 )
                     .fallbackToDestructiveMigration()
-                    .addCallback(DatabaseCallback(scope))
                     .build()
                 INSTANCE = instance
+                scope.launch(Dispatchers.IO) {
+                    try {
+                        ensureInitialProfile(instance)
+                        seedDemoSubscriptions(instance)
+                    } catch (e: Throwable) {
+                        // Safe fallback if sqlite encounters initial lock
+                    }
+                }
                 instance
             }
         }
 
-        private class DatabaseCallback(
-            private val scope: CoroutineScope
-        ) : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-                INSTANCE?.let { database ->
-                    scope.launch(Dispatchers.IO) {
-                        ensureInitialProfile(database)
-                        seedDemoSubscriptions(database)
-                    }
-                }
-            }
-
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                super.onOpen(db)
-                INSTANCE?.let { database ->
-                    scope.launch(Dispatchers.IO) {
-                        seedDemoSubscriptions(database)
-                    }
-                }
-            }
-        }
-
         private suspend fun ensureInitialProfile(database: AppDatabase) {
-            val profileDao = database.userProfileDao()
-            val existing = profileDao.getUserProfile()
-            if (existing == null) {
-                profileDao.insert(
-                    UserProfileEntity(
-                        id = "primary_user",
-                        email = "user@subkiller.app",
-                        name = "SubKiller User",
-                        preferredCurrency = "USD",
-                        isPremium = false,
-                        scansPerformed = 0,
-                        totalSaved = 0.0
+            try {
+                val profileDao = database.userProfileDao()
+                val existing = profileDao.getUserProfile()
+                if (existing == null) {
+                    profileDao.insert(
+                        UserProfileEntity(
+                            id = "primary_user",
+                            email = "user@subkiller.app",
+                            name = "SubKiller User",
+                            preferredCurrency = "USD",
+                            isPremium = false,
+                            scansPerformed = 0,
+                            totalSaved = 0.0
+                        )
                     )
-                )
+                }
+            } catch (e: Throwable) {
+                // Ignore initial seed error if profile exists
             }
         }
 
         private suspend fun seedDemoSubscriptions(database: AppDatabase) {
-            val subDao = database.subscriptionDao()
-            if (subDao.getSubscriptionCount() == 0) {
-                val demoItems = listOf(
-                    SubscriptionEntity(
-                        id = "sub-jazz-01",
-                        name = "Jazz World Monthly Super Duper",
-                        category = "Telecom & Mobile",
-                        provider = "Jazz",
-                        isUtility = false,
-                        amount = 1250.0,
-                        currency = "PKR",
-                        billingCycle = "Monthly",
-                        nextDueDate = "2026-11-25",
-                        status = "active",
-                        isPaidThisMonth = false,
-                        supportEmail = "support@jazz.com.pk",
-                        notes = "Jazz World prepaid package - 10GB Data & 3000 Mins"
-                    ),
-                    SubscriptionEntity(
-                        id = "sub-telenor-01",
-                        name = "Simosa / Telenor EasyCard 950",
-                        category = "Telecom & Mobile",
-                        provider = "Telenor",
-                        isUtility = false,
-                        amount = 950.0,
-                        currency = "PKR",
-                        billingCycle = "Monthly",
-                        nextDueDate = "2026-11-28",
-                        status = "active",
-                        isPaidThisMonth = false,
-                        supportEmail = "customercare@telenor.com.pk",
-                        notes = "Simosa Telenor App Monthly Hybrid Bundle"
-                    ),
-                    SubscriptionEntity(
-                        id = "util-lesco-01",
-                        name = "LESCO Lahore Electricity Bill",
-                        category = "Electricity",
-                        provider = "LESCO",
-                        isUtility = true,
-                        utilityType = "Electricity",
-                        consumerNumber = "04-11234-5678901 U",
-                        amount = 18450.0,
-                        currency = "PKR",
-                        billingCycle = "Monthly",
-                        nextDueDate = "2026-11-22",
-                        status = "active",
-                        isPaidThisMonth = false,
-                        unitsConsumed = 320,
-                        supportEmail = "billinfo@lesco.gov.pk",
-                        notes = "Residential A-1 Peak Hours Tariff (6pm - 10pm)"
-                    ),
-                    SubscriptionEntity(
-                        id = "sub-zong-01",
-                        name = "My Zong Monthly Digital Max",
-                        category = "Telecom & Mobile",
-                        provider = "Zong",
-                        isUtility = false,
-                        amount = 1400.0,
-                        currency = "PKR",
-                        billingCycle = "Monthly",
-                        nextDueDate = "2026-12-05",
-                        status = "active",
-                        isPaidThisMonth = true,
-                        supportEmail = "customercare@zong.com.pk",
-                        notes = "My Zong App 100GB Data Bundle"
-                    ),
-                    SubscriptionEntity(
-                        id = "sub-netflix-01",
-                        name = "Netflix Premium 4K",
-                        category = "Entertainment",
-                        provider = "Netflix",
-                        isUtility = false,
-                        amount = 1100.0,
-                        currency = "PKR",
-                        billingCycle = "Monthly",
-                        nextDueDate = "2026-11-18",
-                        status = "active",
-                        isPaidThisMonth = true,
-                        supportEmail = "info@account.netflix.com",
-                        notes = "Ultra HD 4-screen streaming"
+            try {
+                val subDao = database.subscriptionDao()
+                if (subDao.getSubscriptionCount() == 0) {
+                    val demoItems = listOf(
+                        SubscriptionEntity(
+                            id = "sub-jazz-01",
+                            name = "Jazz World Monthly Super Duper",
+                            category = "Telecom & Mobile",
+                            provider = "Jazz",
+                            isUtility = false,
+                            amount = 1250.0,
+                            currency = "PKR",
+                            billingCycle = "Monthly",
+                            nextDueDate = "2026-11-25",
+                            status = "active",
+                            isPaidThisMonth = false,
+                            supportEmail = "support@jazz.com.pk",
+                            notes = "Jazz World prepaid package - 10GB Data & 3000 Mins"
+                        ),
+                        SubscriptionEntity(
+                            id = "sub-telenor-01",
+                            name = "Simosa / Telenor EasyCard 950",
+                            category = "Telecom & Mobile",
+                            provider = "Telenor",
+                            isUtility = false,
+                            amount = 950.0,
+                            currency = "PKR",
+                            billingCycle = "Monthly",
+                            nextDueDate = "2026-11-28",
+                            status = "active",
+                            isPaidThisMonth = false,
+                            supportEmail = "customercare@telenor.com.pk",
+                            notes = "Simosa Telenor App Monthly Hybrid Bundle"
+                        ),
+                        SubscriptionEntity(
+                            id = "util-lesco-01",
+                            name = "LESCO Lahore Electricity Bill",
+                            category = "Electricity",
+                            provider = "LESCO",
+                            isUtility = true,
+                            utilityType = "Electricity",
+                            consumerNumber = "04-11234-5678901 U",
+                            amount = 18450.0,
+                            currency = "PKR",
+                            billingCycle = "Monthly",
+                            nextDueDate = "2026-11-22",
+                            status = "active",
+                            isPaidThisMonth = false,
+                            unitsConsumed = 320,
+                            supportEmail = "billinfo@lesco.gov.pk",
+                            notes = "Residential A-1 Peak Hours Tariff (6pm - 10pm)"
+                        ),
+                        SubscriptionEntity(
+                            id = "sub-zong-01",
+                            name = "My Zong Monthly Digital Max",
+                            category = "Telecom & Mobile",
+                            provider = "Zong",
+                            isUtility = false,
+                            amount = 1400.0,
+                            currency = "PKR",
+                            billingCycle = "Monthly",
+                            nextDueDate = "2026-12-05",
+                            status = "active",
+                            isPaidThisMonth = true,
+                            supportEmail = "customercare@zong.com.pk",
+                            notes = "My Zong App 100GB Data Bundle"
+                        ),
+                        SubscriptionEntity(
+                            id = "sub-netflix-01",
+                            name = "Netflix Premium 4K",
+                            category = "Entertainment",
+                            provider = "Netflix",
+                            isUtility = false,
+                            amount = 1100.0,
+                            currency = "PKR",
+                            billingCycle = "Monthly",
+                            nextDueDate = "2026-11-18",
+                            status = "active",
+                            isPaidThisMonth = true,
+                            supportEmail = "info@account.netflix.com",
+                            notes = "Ultra HD 4-screen streaming"
+                        )
                     )
-                )
-                subDao.insertAll(demoItems)
+                    subDao.insertAll(demoItems)
+                }
+            } catch (e: Throwable) {
+                // Ignore seed error
             }
         }
     }

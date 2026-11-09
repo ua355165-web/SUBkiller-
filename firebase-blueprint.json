@@ -1,0 +1,70 @@
+{
+  "entities": {
+    "subscriptions": {
+      "collection": "subscriptions",
+      "fields": {
+        "userId": { "type": "string", "required": true },
+        "name": { "type": "string", "required": true },
+        "category": { "type": "string", "required": true },
+        "provider": { "type": "string", "required": true },
+        "isUtility": { "type": "boolean", "required": true },
+        "utilityType": { "type": "string", "required": false },
+        "consumerNumber": { "type": "string", "required": false },
+        "amount": { "type": "number", "required": true },
+        "currency": { "type": "string", "required": true },
+        "billingCycle": { "type": "string", "required": true },
+        "nextDueDate": { "type": "string", "required": true },
+        "supportEmail": { "type": "string", "required": true },
+        "notes": { "type": "string", "required": false },
+        "unitsConsumed": { "type": "number", "required": false },
+        "status": { "type": "string", "required": true },
+        "isPaidThisMonth": { "type": "boolean", "required": true },
+        "createdAt": { "type": "timestamp", "required": false },
+        "updatedAt": { "type": "timestamp", "required": false }
+      }
+    },
+    "cancellations": {
+      "collection": "cancellations",
+      "fields": {
+        "userId": { "type": "string", "required": true },
+        "subscriptionId": { "type": "string", "required": true },
+        "subscriptionName": { "type": "string", "required": true },
+        "recipientEmail": { "type": "string", "required": true },
+        "emailSubject": { "type": "string", "required": true },
+        "emailBody": { "type": "string", "required": true },
+        "status": { "type": "string", "required": true },
+        "requestType": { "type": "string", "required": true },
+        "generatedAt": { "type": "timestamp", "required": false },
+        "notes": { "type": "string", "required": false },
+        "createdAt": { "type": "timestamp", "required": false },
+        "updatedAt": { "type": "timestamp", "required": false }
+      }
+    },
+    "event_logs": {
+      "collection": "event_logs",
+      "fields": {
+        "userId": { "type": "string", "required": true },
+        "actionType": { "type": "string", "required": true },
+        "title": { "type": "string", "required": true },
+        "description": { "type": "string", "required": true },
+        "timestamp": { "type": "timestamp", "required": false },
+        "createdAt": { "type": "timestamp", "required": false }
+      }
+    },
+    "user_profiles": {
+      "collection": "user_profiles",
+      "fields": {
+        "userId": { "type": "string", "required": true },
+        "email": { "type": "string", "required": true },
+        "name": { "type": "string", "required": true },
+        "totalSaved": { "type": "number", "required": true },
+        "preferredCurrency": { "type": "string", "required": true },
+        "isPremium": { "type": "boolean", "required": true },
+        "isAdvancedRemindersActive": { "type": "boolean", "required": true },
+        "securityPin": { "type": "string", "required": true },
+        "avatarUri": { "type": "string", "required": false },
+        "updatedAt": { "type": "timestamp", "required": false }
+      }
+    }
+  }
+}
