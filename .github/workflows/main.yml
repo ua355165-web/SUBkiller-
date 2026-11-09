@@ -27,4 +27,3 @@ jobs:
           name: BillKiller-App
           path: app/build/outputs/apk/debug/app-debug.apk
           
-          
