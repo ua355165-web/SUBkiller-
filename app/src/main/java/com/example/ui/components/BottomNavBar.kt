@@ -27,6 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +64,9 @@ fun SubKillerBottomNavBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .graphicsLayer {
+                compositingStrategy = CompositingStrategy.Offscreen
+            }
             .navigationBarsPadding()
             .background(FinanceObsidian)
             .border(width = 1.dp, color = FinanceBorder, shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))

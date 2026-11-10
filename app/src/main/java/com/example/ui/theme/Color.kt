@@ -2,30 +2,30 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Dark Finance-Style Theme Colors
-val FinanceObsidian = Color(0xFF090D16)
-val FinanceSurface = Color(0xFF111827)
-val FinanceCard = Color(0xFF162032)
-val FinanceCardElevated = Color(0xFF1E293B)
-val FinanceBorder = Color(0xFF2B3952)
-val FinanceBorderLight = Color(0xFF384663)
+// High-Contrast VIP Dark Finance Theme Colors (4K/QHD+ Crisp Display Optimized)
+val FinanceObsidian = Color(0xFF0B0E14)      // Ultra-deep true dark background
+val FinanceSurface = Color(0xFF111827)       // Deep charcoal surface layer
+val FinanceCard = Color(0xFF131D2E)          // Clean dark card container
+val FinanceCardElevated = Color(0xFF182338)  // Elevated crisp card container
+val FinanceBorder = Color(0xFF1E293B)        // Razor-sharp 1dp structural border
+val FinanceBorderLight = Color(0xFF334155)   // High-definition accent boundary border
 
-// Brand & Financial Accents
-val EmeraldPrimary = Color(0xFF10B981)
-val EmeraldGlow = Color(0xFF34D399)
-val EmeraldDark = Color(0xFF064E3B)
-val CyanAccent = Color(0xFF06B6D4)
-val CyanGlow = Color(0xFF22D3EE)
-val PurplePremium = Color(0xFF8B5CF6)
-val AmberPending = Color(0xFFF59E0B)
-val CrimsonAlert = Color(0xFFEF4444)
+// Bright Neon Accents & Financial Indicators
+val EmeraldPrimary = Color(0xFF10B981)       // Bright Neon Emerald
+val EmeraldGlow = Color(0xFF34D399)          // Vivid Emerald Highlight
+val EmeraldDark = Color(0xFF064E3B)          // Deep Emerald Container
+val CyanAccent = Color(0xFF3B82F6)           // High-definition Neon Electric Blue/Cyan
+val CyanGlow = Color(0xFF60A5FA)             // Vivid Cyan Highlight
+val PurplePremium = Color(0xFF8B5CF6)        // VIP Royal Purple
+val AmberPending = Color(0xFFF59E0B)         // Crisp Warning Amber
+val CrimsonAlert = Color(0xFFEF4444)         // Vivid High-Contrast Alert Red
 
-// Text tokens
-val TextPrimary = Color(0xFFF8FAFC)
-val TextSecondary = Color(0xFF94A3B8)
-val TextMuted = Color(0xFF64748B)
+// Ultra-Crisp Typography Tokens (Clean Contrast for 120Hz/High-DPI displays)
+val TextPrimary = Color.White                // Crisp 100% white for maximum readability
+val TextSecondary = Color(0xFF94A3B8)        // High-contrast secondary slate
+val TextMuted = Color(0xFF64748B)            // Readable muted label slate
 
-// Utility provider brands
+// Utility & Provider Brand Tokens
 val LescoOrange = Color(0xFFEA580C)
 val KElectricGreen = Color(0xFF059669)
 val PtclCyan = Color(0xFF0284C7)

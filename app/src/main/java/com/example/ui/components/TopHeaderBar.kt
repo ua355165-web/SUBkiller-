@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -63,19 +65,24 @@ fun TopHeaderBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .graphicsLayer {
+                compositingStrategy = CompositingStrategy.Offscreen
+            }
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         // App Identity with Glowing Shield
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.testTag("app_identity_row")
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .testTag("app_identity_row")
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
                     .background(
                         Brush.linearGradient(
                             listOf(EmeraldPrimary, CyanAccent)
@@ -86,7 +93,7 @@ fun TopHeaderBar(
                 Box(
                     modifier = Modifier
                         .matchParentSize()
-                        .clip(RoundedCornerShape(11.dp))
+                        .clip(RoundedCornerShape(9.dp))
                         .background(FinanceCard),
                     contentAlignment = Alignment.Center
                 ) {
@@ -94,54 +101,64 @@ fun TopHeaderBar(
                         imageVector = Icons.Default.Shield,
                         contentDescription = "SubKiller Icon",
                         tint = EmeraldGlow,
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "SubKiller",
-                        style = MaterialTheme.typography.titleMedium.copy(
+                        style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.ExtraBold,
-                            letterSpacing = 0.5.sp
+                            letterSpacing = 0.3.sp
                         ),
-                        color = TextPrimary
+                        color = TextPrimary,
+                        maxLines = 1,
+                        softWrap = false
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
                     if (isPremium) {
                         Icon(
                             imageVector = Icons.Default.Verified,
                             contentDescription = "VIP Member",
                             tint = PurplePremium,
-                            modifier = Modifier.size(15.dp)
+                            modifier = Modifier.size(13.dp)
                         )
                     }
                 }
                 Text(
-                    text = if (isPremium) "VIP Black Edition" else "VIP Finance Edition",
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = if (isPremium) PurplePremium else EmeraldGlow
+                    text = if (isPremium) "VIP Black Edition" else "VIP Finance",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = if (isPremium) PurplePremium else EmeraldGlow,
+                    maxLines = 1,
+                    softWrap = false
                 )
             }
         }
 
-        // Action controls: Currency Toggle + Smart Scan + Share
+        Spacer(modifier = Modifier.width(6.dp))
+
+        // Action controls: Currency Toggle + Smart Scan + Mic + Lock + Share
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             // Currency Toggle Pill (USD <-> PKR)
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
+                    .height(34.dp)
+                    .clip(RoundedCornerShape(17.dp))
                     .background(FinanceCard)
-                    .border(1.dp, FinanceBorder, RoundedCornerShape(20.dp))
+                    .border(1.dp, FinanceBorder, RoundedCornerShape(17.dp))
                     .clickable { onToggleCurrency() }
-                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                    .padding(horizontal = 7.dp)
                     .testTag("currency_toggle_button"),
                 contentAlignment = Alignment.Center
             ) {
@@ -150,13 +167,18 @@ fun TopHeaderBar(
                         imageVector = Icons.Default.CurrencyExchange,
                         contentDescription = "Change Currency",
                         tint = EmeraldGlow,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(13.dp)
                     )
-                    Spacer(modifier = Modifier.width(5.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
                     Text(
                         text = if (currentCurrency == CurrencyCode.USD) "$ USD" else "Rs PKR",
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = TextPrimary
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = TextPrimary,
+                        maxLines = 1,
+                        softWrap = false
                     )
                 }
             }
@@ -164,19 +186,19 @@ fun TopHeaderBar(
             // Smart Scan Button with Lock badge if free
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
+                    .size(34.dp)
+                    .clip(RoundedCornerShape(10.dp))
                     .background(if (isPremium) CyanAccent.copy(alpha = 0.15f) else FinanceCard)
                     .border(
                         1.dp,
                         if (isPremium) CyanAccent.copy(alpha = 0.5f) else FinanceBorder,
-                        RoundedCornerShape(12.dp)
+                        RoundedCornerShape(10.dp)
                     )
                     .clickable { onOpenSmartScan() }
-                    .padding(8.dp)
                     .testTag("smart_scan_top_button"),
                 contentAlignment = Alignment.Center
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.DocumentScanner,
                         contentDescription = "Smart Scan",
@@ -184,70 +206,73 @@ fun TopHeaderBar(
                         modifier = Modifier.size(18.dp)
                     )
                     if (!isPremium) {
-                        Spacer(modifier = Modifier.width(3.dp))
-                        Icon(
-                            imageVector = Icons.Default.Lock,
-                            contentDescription = "Pro Feature",
-                            tint = PurplePremium,
-                            modifier = Modifier.size(12.dp)
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(PurplePremium)
                         )
                     }
                 }
             }
 
             // Audio Transcribe Mic Button
-            IconButton(
-                onClick = onOpenAudioTranscribe,
+            Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(34.dp)
                     .clip(CircleShape)
                     .background(CyanAccent.copy(alpha = 0.15f))
                     .border(1.dp, CyanAccent.copy(alpha = 0.5f), CircleShape)
-                    .testTag("audio_transcribe_top_button")
+                    .clickable { onOpenAudioTranscribe() }
+                    .testTag("audio_transcribe_top_button"),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Mic,
                     contentDescription = "Audio Transcribe",
                     tint = CyanAccent,
-                    modifier = Modifier.size(17.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
 
             // Biometric Quick Lock Button
             if (onLockBiometrically != null) {
-                IconButton(
-                    onClick = onLockBiometrically,
+                Box(
                     modifier = Modifier
-                        .size(36.dp)
+                        .size(34.dp)
                         .clip(CircleShape)
                         .background(FinanceCard)
                         .border(1.dp, FinanceBorder, CircleShape)
-                        .testTag("biometric_quick_lock_button")
+                        .clickable { onLockBiometrically() }
+                        .testTag("biometric_quick_lock_button"),
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = "Lock App Biometrically",
                         tint = EmeraldGlow,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(17.dp)
                     )
                 }
             }
 
             // Social Share Button
-            IconButton(
-                onClick = onOpenSocialShare,
+            Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(34.dp)
                     .clip(CircleShape)
                     .background(FinanceCard)
                     .border(1.dp, FinanceBorder, CircleShape)
-                    .testTag("social_share_top_button")
+                    .clickable { onOpenSocialShare() }
+                    .testTag("social_share_top_button"),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Share,
                     contentDescription = "Share Card",
                     tint = TextPrimary,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(17.dp)
                 )
             }
         }

@@ -27,6 +27,15 @@ class MainActivity : FragmentActivity() {
         // Strictly enforce locked / unauthenticated state on cold start
         viewModel.resetAuthenticationState()
 
+        // Safely initialize Firebase on startup before any UI or Firebase operations
+        try {
+            if (com.google.firebase.FirebaseApp.getApps(this).isEmpty()) {
+                com.google.firebase.FirebaseApp.initializeApp(this)
+            }
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+
         // Configure App Check with launch intent before any UI or Firebase operations
         com.example.security.configureAppCheck(this, intent)
 

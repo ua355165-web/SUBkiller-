@@ -37,6 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -124,6 +126,9 @@ fun ProminentGreenBarChartCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .graphicsLayer {
+                compositingStrategy = CompositingStrategy.Offscreen
+            }
             .clip(RoundedCornerShape(22.dp))
             .background(
                 Brush.verticalGradient(
@@ -145,7 +150,10 @@ fun ProminentGreenBarChartCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.weight(1f, fill = false),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Box(
                         modifier = Modifier
                             .size(34.dp)
@@ -160,33 +168,46 @@ fun ProminentGreenBarChartCard(
                             modifier = Modifier.size(20.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
                             text = if (selectedMetric == ChartMetricType.MONTHLY_SPEND) "MONTHLY SPEND TREND" else "AI SAVINGS ACCELERATION",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.sp
+                                letterSpacing = 0.8.sp
                             ),
-                            color = TextSecondary
+                            color = Color.White,
+                            maxLines = 1,
+                            softWrap = false
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = displaySelectedValue,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
-                                color = EmeraldGlow
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = (-0.3).sp
+                                ),
+                                color = EmeraldGlow,
+                                maxLines = 1,
+                                softWrap = false
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "(${selectedBar.month})",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = TextMuted
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.SemiBold
+                                ),
+                                color = TextSecondary,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }
                 }
 
-                // Switcher Pill
+                Spacer(modifier = Modifier.width(6.dp))
+
+                // Switcher Pill (Spend / Savings)
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
@@ -202,12 +223,14 @@ fun ProminentGreenBarChartCard(
                                 if (selectedMetric == ChartMetricType.MONTHLY_SPEND) EmeraldPrimary else Color.Transparent
                             )
                             .clickable { selectedMetric = ChartMetricType.MONTHLY_SPEND }
-                            .padding(horizontal = 8.dp, vertical = 5.dp)
+                            .padding(horizontal = 9.dp, vertical = 6.dp)
                             .testTag("chart_tab_spend"),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "Spend",
+                            maxLines = 1,
+                            softWrap = false,
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                             color = if (selectedMetric == ChartMetricType.MONTHLY_SPEND) Color(0xFF022C22) else TextSecondary
                         )
@@ -220,12 +243,14 @@ fun ProminentGreenBarChartCard(
                                 if (selectedMetric == ChartMetricType.TOTAL_SAVINGS) EmeraldPrimary else Color.Transparent
                             )
                             .clickable { selectedMetric = ChartMetricType.TOTAL_SAVINGS }
-                            .padding(horizontal = 8.dp, vertical = 5.dp)
+                            .padding(horizontal = 9.dp, vertical = 6.dp)
                             .testTag("chart_tab_savings"),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "Savings",
+                            maxLines = 1,
+                            softWrap = false,
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                             color = if (selectedMetric == ChartMetricType.TOTAL_SAVINGS) Color(0xFF022C22) else TextSecondary
                         )
